@@ -1,5 +1,5 @@
 import axios from 'axios';
 
 export default axios.create({
-  baseURL: 'https://restcountries.eu/rest/v2/',
+  baseURL: 'http://dummy.restapiexample.com/api/v1/',
 });

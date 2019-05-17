@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import moment from 'moment';
 import { ReactEasyCrudContext } from '../Context';
+import * as requests from './request';
 
 const validateDependency = (
   field,
@@ -39,7 +40,6 @@ const setValueByType = (data, field) => {
       return fieldData;
     }
     case 'cascader': {
-      debugger;
       return [data[field.keyParent].id, data.id];
     }
     default: {
@@ -59,7 +59,7 @@ export default function useCrudForm(conf, key) {
         )
     )
   );
-  const { client } = useContext(ReactEasyCrudContext);
+  const { client, type } = useContext(ReactEasyCrudContext);
 
   useEffect(() => {
     async function init() {
@@ -86,15 +86,16 @@ export default function useCrudForm(conf, key) {
         const responses = await Promise.all(promises.all);
 
         if (key) {
-          const { data } = await client.query({
-            query: conf.getByKey.query,
-            variables: {
-              [conf.keyName || 'id']: key,
-            },
-          });
+          const data = await requests[type].getByKey(
+            client,
+            conf.getByKey.query ||
+              conf.getByKey.url.replace('{keyName}', key || ''),
+            conf.getByKey.accessData,
+            { [conf.keyName || 'id']: key }
+          );
           fields.forEach(field => {
             if (field.type === 'file') {
-              const name = data[conf.getByKey.accessData][field.key];
+              const name = data[field.updateKey || field.key];
               if (name !== null) {
                 const fileList = [
                   {
@@ -107,15 +108,22 @@ export default function useCrudForm(conf, key) {
                 field.props.fileList = fileList;
               }
             }
-            if (data[conf.getByKey.accessData][field.key]) {
+            if (data[field.updateKey || field.key]) {
               valuesFields[field.key] = {
-                ...validateDependency(field, data[conf.getByKey.accessData]),
+                ...validateDependency(field, data),
                 value: setValueByType(
-                  data[conf.getByKey.accessData][field.key],
+                  data[field.updateKey || field.key],
                   field
                 ),
               };
             }
+          });
+        } else {
+          fields.forEach(field => {
+            valuesFields[field.key] = {
+              ...validateDependency(field, {}),
+              value: undefined,
+            };
           });
         }
 
@@ -160,21 +168,38 @@ export default function useCrudForm(conf, key) {
   const onSubmit = values => {
     setLoading(true);
     const isUpdating =
-      key > 0
+      !(key === null || key === undefined) && type === 'graphql'
         ? {
             query: conf.getByKey.query,
             variables: { [conf.keyName || 'id']: key || undefined },
           }
         : undefined;
 
-    client
-      .mutate({
-        mutation: conf.post.query,
-        variables: { ...values, [conf.keyName || 'id']: key || undefined },
-        refetchQueries: [{ query: conf.getList.query }, isUpdating].filter(
-          Boolean
-        ),
-      })
+    let ACTION = 'upsert';
+    if (!Object.hasOwnProperty.call(conf, 'upsert')) {
+      if (
+        !(key === null || key === undefined) &&
+        Object.hasOwnProperty.call(conf, 'update')
+      ) {
+        ACTION = 'update';
+      } else if (!key && Object.hasOwnProperty.call(conf, 'create')) {
+        ACTION = 'create';
+      }
+    }
+
+    requests[type][ACTION](
+      client,
+      conf[ACTION].query || conf[ACTION].url.replace('{keyName}', key || ''),
+      conf.delete.accessData || null,
+      { ...values, [conf.keyName || 'id']: key || undefined },
+      {
+        method: conf[ACTION].method,
+        refetchQueries: [
+          { query: conf.getList.query || null },
+          isUpdating,
+        ].filter(Boolean),
+      }
+    )
       .then(response => {
         console.log('onSubmitHook', response);
         setLoading(false);

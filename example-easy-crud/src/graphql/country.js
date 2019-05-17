@@ -1,35 +1,59 @@
 import { gql } from 'apollo-boost';
 
 const country = {
-  keyName: 'code',
+  keyName: 'id',
   getList: {
-    accessData: 'countries',
+    accessData: 'faqs',
     query: gql`
-      query Countries {
-        countries {
-          code
-          name
-          currency
+      query Faqs {
+        faqs {
+          id
+          question
+          answer
+        }
+      }
+    `,
+  },
+  getByKey: {
+    accessData: 'faq',
+    query: gql`
+      query Faq($id: ID!) {
+        faq(id: $id) {
+          id
+          question
+          answer
+        }
+      }
+    `,
+  },
+  upsert: {
+    accessData: 'upsertFaq',
+    query: gql`
+      mutation UpsertFaq($id: ID, $question: String!, $answer: String!) {
+        upsertFaq(id: $id, question: $question, answer: $answer) {
+          message
+          status
+          result
         }
       }
     `,
   },
   delete: {
-    accessData: 'deleteCountry',
+    accessData: 'deleteFaq',
     query: gql`
-      mutation DeleteCountry($id: ID!) {
-        deleteCountry(id: $id) {
-          code
-          name
-          currency
+      mutation DeleteFaq($id: ID!) {
+        deleteFaq(id: $id) {
+          message
+          status
+          result
         }
       }
     `,
   },
   fields: [
     {
-      title: 'Nombre',
-      key: 'name',
+      title: 'Question',
+      key: 'question',
       sorter: true,
       filter: true,
       type: 'string',
@@ -40,15 +64,15 @@ const country = {
       ],
     },
     {
-      title: 'Moneda',
-      key: 'currency',
+      title: 'Answer',
+      key: 'answer',
       sorter: true,
       filter: true,
-      type: 'string',
+      type: 'textarea',
       rules: [
         { required: true, message: 'Is required!' },
         { type: 'string', message: 'Should be string!' },
-        { max: 100, message: 'Max 100 characters!' },
+        { max: 300, message: 'Max 300 characters!' },
       ],
     },
   ],

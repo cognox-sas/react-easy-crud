@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Form as FormAntd, Button, Row, Col } from 'antd';
-import getForm from './typeForms';
+import getForm from '../typeForms';
 
 const formItemLayout = {
   labelCol: {
@@ -34,6 +34,11 @@ const Form = ({
     });
   };
 
+  const cancel = () => {
+    form.resetFields();
+    onCancel();
+  };
+
   return (
     <Fragment>
       {title}
@@ -53,11 +58,7 @@ const Form = ({
             xs={{ span: 24 }}
             className="custom-align-right"
           >
-            <Button
-              size="large"
-              className="custom-full-width"
-              onClick={onCancel}
-            >
+            <Button size="large" className="custom-full-width" onClick={cancel}>
               {translation('Cancel')}
             </Button>
           </Col>

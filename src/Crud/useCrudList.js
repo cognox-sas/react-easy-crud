@@ -2,8 +2,8 @@ import React, { useMemo, useState, useEffect, useContext } from 'react';
 import { Icon } from 'antd';
 import { ReactEasyCrudContext } from '../Context';
 import { sortNumber, sortString, sortBool } from './sorters';
-import SearchTableFilter from './SearchTableFilter';
-import DateTableFilter from './DateTableFilter';
+import SearchTableFilter from './components/SearchTableFilter';
+import DateTableFilter from './components/DateTableFilter';
 import * as requests from './request';
 
 const typeSorter = {
@@ -19,6 +19,10 @@ const resolveRender = field => {
   } else if (field.type === 'bool' && !field.render) {
     field.render = (text, record) =>
       record[field.key] ? field.options.true : field.options.false;
+  } else {
+    field.render = field.columnKey
+      ? (text, record) => record[field.columnKey] || text
+      : field.render;
   }
   return field.render;
 };
@@ -154,16 +158,23 @@ export default function useCrudList(conf) {
     requests[type]
       .delete(
         client,
-        conf.delete.query || conf.delete.url,
+        conf.delete.query || conf.delete.url.replace('{keyName}', key || ''),
         conf.delete.accessData || null,
         { [conf.keyName || 'id']: key },
-        { refetchQueries: [{ query: conf.getList.query || null }] }
+        {
+          refetchQueries: [{ query: conf.getList.query || null }],
+          method: conf.delete.method || undefined,
+        }
       )
       .then(response => {
         if (response) {
           console.log('ok');
         }
         setLoading(false);
+        // Only Rest because GraphQl controller this with refetchQueries
+        if (type === 'rest') {
+          setDataSource(dataSource.filter(d => d[conf.keyName] !== key));
+        }
       })
       .catch(e => {
         setLoading(false);

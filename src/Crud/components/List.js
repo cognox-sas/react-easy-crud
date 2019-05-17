@@ -17,7 +17,7 @@ const List = ({
       title: translation('Actions'),
       key: '',
       align: 'right',
-      width: 45 * ((addActions && addActions.length) || 0),
+      width: 50 * ((addActions && addActions.length) || 0),
       render: (value, record) =>
         addActions &&
         addActions.map(action => (

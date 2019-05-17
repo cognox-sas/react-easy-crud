@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Layout } from 'antd';
 import {
   ProviderEasyCrud,
@@ -15,18 +15,46 @@ import countryConfigRest from './rest/country';
 const { Content } = Layout;
 
 const RootGraphQL = () => {
+  const [updatingKey, setUpdatingKey] = useState(null);
   const listProps = useCrudList(countryConfig);
-  const formProps = useCrudForm(countryConfig);
+  const formProps = useCrudForm(countryConfig, updatingKey);
   return (
     <Layout>
       <Content style={{ padding: 50 }}>
         <h1>With GraphQL</h1>
         <h2>Form</h2>
-        {/* <Form {...formProps} /> */}
+        <h2>
+          Form{' '}
+          {!(updatingKey === null || updatingKey === undefined)
+            ? `Updating: ${updatingKey}`
+            : 'New'}
+        </h2>
+        {(updatingKey !== null || updatingKey !== undefined) &&
+        formProps.loading === true ? (
+          'Loading...'
+        ) : (
+          <Form {...formProps} onCancel={() => setUpdatingKey(null)} />
+        )}
         <h2>List</h2>
         <List
           title={<h3>Countries</h3>}
           rowKey={countryConfig.keyName}
+          addActions={[
+            {
+              text: 'Edit',
+              icon: 'edit',
+              type: 'primary',
+              onClick: record => setUpdatingKey(record[countryConfig.keyName]),
+            },
+            {
+              text: 'Delete',
+              icon: 'delete',
+              type: 'danger',
+              confirm: 'Are you sure?',
+              onClick: record =>
+                listProps.onDelete(record[countryConfig.keyName]),
+            },
+          ]}
           {...listProps}
         />
       </Content>
@@ -35,18 +63,46 @@ const RootGraphQL = () => {
 };
 
 const RootRest = () => {
+  const [updatingKey, setUpdatingKey] = useState(null);
   const listProps = useCrudList(countryConfigRest);
-  const formProps = useCrudForm(countryConfigRest);
+  const formProps = useCrudForm(countryConfigRest, updatingKey);
   return (
     <Layout>
       <Content style={{ padding: 50 }}>
         <h1>With Rest</h1>
-        <h2>Form</h2>
-        {/* <Form {...formProps} /> */}
+        <h2>
+          Form{' '}
+          {!(updatingKey === null || updatingKey === undefined)
+            ? `Updating: ${updatingKey}`
+            : 'New'}
+        </h2>
+        {(updatingKey !== null || updatingKey !== undefined) &&
+        formProps.loading === true ? (
+          'Loading...'
+        ) : (
+          <Form {...formProps} onCancel={() => setUpdatingKey(null)} />
+        )}
         <h2>List</h2>
         <List
           title={<h3>Countries</h3>}
           rowKey={countryConfigRest.keyName}
+          addActions={[
+            {
+              text: 'Edit',
+              icon: 'edit',
+              type: 'primary',
+              onClick: record =>
+                setUpdatingKey(record[countryConfigRest.keyName]),
+            },
+            {
+              text: 'Delete',
+              icon: 'delete',
+              type: 'danger',
+              confirm: 'Are you sure?',
+              onClick: record =>
+                listProps.onDelete(record[countryConfigRest.keyName]),
+            },
+          ]}
           {...listProps}
         />
       </Content>
