@@ -3,15 +3,16 @@ import PropTypes from 'prop-types';
 
 import { ReactEasyCrudContext } from './Context';
 
-function ProviderEasyCrud({ client, children }) {
+function ProviderEasyCrud({ client, type, children }) {
   return (
-    <ReactEasyCrudContext.Provider value={{ client }}>
+    <ReactEasyCrudContext.Provider value={{ client, type }}>
       {children}
     </ReactEasyCrudContext.Provider>
   );
 }
 
 ProviderEasyCrud.propTypes = {
+  type: PropTypes.oneOf(['rest', 'graphql']).isRequired,
   children: PropTypes.element.isRequired,
   client: PropTypes.any.isRequired,
 };
