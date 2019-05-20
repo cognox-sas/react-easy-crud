@@ -10,6 +10,7 @@ import pkg from './package.json';
 
 export default {
   input: 'src/index.js',
+  external: ['react', 'react-dom', 'prop-types', 'antd', 'moment'],
   output: [
     {
       file: pkg.main,
@@ -31,7 +32,8 @@ export default {
     svgr(),
     babel({
       exclude: 'node_modules/**',
-      plugins: ['external-helpers'],
+      externalHelpers: true,
+      runtimeHelpers: true,
     }),
     resolve(),
     commonjs(),

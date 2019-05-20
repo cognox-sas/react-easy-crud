@@ -6,11 +6,13 @@ import {
   List,
   useCrudForm,
   Form,
-} from 'react-easy-crud';
+} from '../src/index';
 import client from './graphql/client';
 import axiosClient from './rest/axiosIntance';
 import countryConfig from './graphql/country';
 import countryConfigRest from './rest/country';
+
+import 'antd/dist/antd.min.css';
 
 const { Content } = Layout;
 
@@ -110,16 +112,14 @@ const RootRest = () => {
   );
 };
 
-function App() {
-  return (
-    <>
-      <ProviderEasyCrud type="graphql" client={client}>
-        <RootGraphQL />
-      </ProviderEasyCrud>
-      <ProviderEasyCrud type="rest" client={axiosClient}>
-        <RootRest />
-      </ProviderEasyCrud>
-    </>
-  );
-}
-export default App;
+export const AppGraphQL = () => (
+  <ProviderEasyCrud type="graphql" client={client}>
+    <RootGraphQL />
+  </ProviderEasyCrud>
+);
+
+export const AppRest = () => (
+  <ProviderEasyCrud type="rest" client={axiosClient}>
+    <RootRest />
+  </ProviderEasyCrud>
+);

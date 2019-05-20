@@ -1,4 +1,5 @@
 /node_modules
 /dist
-/example/node_modules
-/example/public
+/example-easy-crud/node_modules
+/example-easy-crud/public
+/example-easy-crud/src/serviceWorker.js

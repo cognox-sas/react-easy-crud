@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import moment from 'moment';
 import { ReactEasyCrudContext } from '../Context';
 import * as requests from './request';

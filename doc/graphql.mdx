@@ -1,0 +1,21 @@
+---
+name: Example GraphQL
+route: /graphql-use
+menu: Documents
+---
+
+# Example with Rest API
+
+import { Playground, Props } from 'docz'
+import { AppGraphQL } from '../example-src/App'
+import { ProviderEasyCrud } from '../src/index'
+
+## Props of ProviderEasyCrud
+
+<Props of={ProviderEasyCrud} />
+
+## Example
+
+<Playground>
+  <AppGraphQL />
+</Playground>
