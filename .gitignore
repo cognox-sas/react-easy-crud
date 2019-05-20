@@ -3,6 +3,7 @@
 
 # dependencies
 node_modules
+.docz
 
 # builds
 build
