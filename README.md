@@ -13,16 +13,17 @@ npm install --save react-easy-crud
 ## Usage
 
 ```jsx
-import React, { Component } from 'react'
+import React from 'react'
 
-import MyComponent from 'react-easy-crud'
+import { ProviderEasyCrud } from 'react-easy-crud'
+import client from './client'; // client of apollo-client or axios
 
-class Example extends Component {
-  render () {
-    return (
-      <MyComponent />
-    )
-  }
+function App() {
+  return (
+    <ProviderEasyCrud type='graphql' client={client}>
+      <MyApp />
+    </ProviderEasyCrud>
+  )
 }
 ```
 
