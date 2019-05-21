@@ -13,14 +13,15 @@ const validateDependency = (
     field.dependencies.fields.filter(dependency => keys.includes(dependency))
       .length > 0
   ) {
-    if (
-      (field.dependencies.fields || keys).reduce(
-        (allHaveValues, current) => allHaveValues && !!allValues[current],
-        true
-      )
-    ) {
-      return field.dependencies && field.dependencies.onChange();
-    }
+    const dependencyFields = {};
+    Object.keys(allValues).forEach(key => {
+      if (field.dependencies.fields.indexOf(key) >= 0) {
+        dependencyFields[key] = allValues[key];
+      }
+    });
+    return (
+      field.dependencies && field.dependencies.onChange(dependencyFields, field)
+    );
   }
 };
 
@@ -48,7 +49,7 @@ const setValueByType = (data, field) => {
   }
 };
 
-export default function useCrudForm(conf, key) {
+export default function useCrudForm(conf, key, dependencies = null) {
   const [loading, setLoading] = useState(false);
   const [fields, setFields] = useState(
     conf.fields.filter(
@@ -60,6 +61,31 @@ export default function useCrudForm(conf, key) {
     )
   );
   const { client, type } = useContext(ReactEasyCrudContext);
+
+  useEffect(() => {
+    if (dependencies) {
+      setLoading(true);
+      (async () => {
+        const { data } = await client.query({
+          query: dependencies.configOptions.query,
+          variables: {
+            [conf.keyName || 'id']: dependencies.configOptions.keySearch,
+          },
+        });
+        const { keyField, map } = dependencies.configOptions;
+        const _field = fields.filter(e => e.key === keyField);
+        _field[0].options = data[dependencies.configOptions.accessData].reduce(
+          (items, item) => ({
+            ...items,
+            ...map(item),
+          }),
+          {}
+        );
+        setLoading(false);
+      })();
+    }
+    // eslint-disable-next-line
+  }, [dependencies]);
 
   useEffect(() => {
     async function init() {
