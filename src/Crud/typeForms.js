@@ -11,6 +11,7 @@ import {
   Upload,
   Cascader,
 } from 'antd';
+import { RichText } from './components/types';
 
 const getForm = (field, getFieldDecorator) => {
   const globalOptions = {
@@ -86,6 +87,13 @@ const getForm = (field, getFieldDecorator) => {
         ...globalOptions,
         rules: field.rules,
       })(<Input.TextArea disabled={field.disabled || false} />);
+    }
+    case 'rich': {
+      return getFieldDecorator(field.key, {
+        ...globalOptions,
+        initialValue: field.value,
+        rules: field.rules,
+      })(<RichText />);
     }
     case 'file': {
       return getFieldDecorator(field.key, {

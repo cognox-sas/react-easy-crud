@@ -42,6 +42,8 @@ const setValueByType = (data, field) => {
     case 'cascader': {
       return [data[field.keyParent].id, data.id];
     }
+    case 'rich':
+      return fieldData || ' ';
     default: {
       return fieldData.toString();
     }
@@ -50,6 +52,7 @@ const setValueByType = (data, field) => {
 
 export default function useCrudForm(conf, key) {
   const [loading, setLoading] = useState(false);
+  const [loadingForm, setLoadingForm] = useState(!!key);
   const [fields, setFields] = useState(
     conf.fields.filter(
       field =>
@@ -118,6 +121,7 @@ export default function useCrudForm(conf, key) {
               };
             }
           });
+          setLoadingForm(false);
         } else {
           fields.forEach(field => {
             valuesFields[field.key] = {
@@ -235,5 +239,5 @@ export default function useCrudForm(conf, key) {
     );
   };
 
-  return { fields, onSubmit, loading, onValuesChanged };
+  return { fields, onSubmit, loading, onValuesChanged, loadingForm };
 }
