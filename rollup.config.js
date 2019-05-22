@@ -5,12 +5,12 @@ import postcss from 'rollup-plugin-postcss';
 import resolve from 'rollup-plugin-node-resolve';
 import url from 'rollup-plugin-url';
 import svgr from '@svgr/rollup';
+import { terser } from 'rollup-plugin-terser';
 
 import pkg from './package.json';
 
 export default {
   input: 'src/index.js',
-  external: ['react', 'react-dom', 'prop-types', 'antd', 'moment'],
   output: [
     {
       file: pkg.main,
@@ -24,18 +24,28 @@ export default {
     },
   ],
   plugins: [
-    external(),
     postcss({
-      modules: true,
+      plugins: [],
+      minimize: true,
+      sourceMap: 'inline',
+    }),
+    external({
+      includeDependencies: true,
     }),
     url(),
     svgr(),
-    babel({
-      exclude: 'node_modules/**',
-      externalHelpers: true,
-      runtimeHelpers: true,
-    }),
     resolve(),
+    babel({
+      plugins: [
+        '@babel/plugin-proposal-object-rest-spread',
+        '@babel/plugin-proposal-optional-chaining',
+        '@babel/plugin-syntax-dynamic-import',
+        '@babel/plugin-proposal-class-properties',
+        'transform-react-remove-prop-types',
+      ],
+      exclude: 'node_modules/**',
+    }),
     commonjs(),
+    terser(),
   ],
 };
