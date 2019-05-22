@@ -14,24 +14,20 @@
   },
   "scripts": {
     "dev": "run-p build:watch start",
-    "start": "styleguidist server --open",
-    "styleguide:build": "styleguidist build",
     "build": "rollup -c",
     "build:watch": "rollup -c -w",
     "test": "jest",
     "test:coverage": "jest --coverage --forceExit --colors",
-    "lint": "esw --ext .jsx --ext .js --color",
-    "lint:fix": "npm run lint --fix",
+    "lint": "eslint . -c .eslintrc",
+    "lint:fix": "eslint . --fix -c .eslintrc",
     "prepare": "npm run build",
     "prerelease": "npm run lint:fix && npm run test:coverage && npm run build",
-    "release": "npm publish",
-    "predeploy": "npm run styleguide:build",
-    "deploy": "gh-pages -d styleguide"
+    "release": "npm publish"
   },
-  "dependencies": {},
   "peerDependencies": {
     "antd": "^3.15.0",
     "moment": "^2.20.0",
+    "prop-types": "^15.0.0 || ^16.0.0",
     "react": "^15.0.0 || ^16.0.0",
     "react-dom": "^15.0.0 || ^16.0.0"
   },
@@ -54,22 +50,25 @@
     "enzyme-adapter-react-16": "^1.12.1",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-prettier": "^4.3.0",
     "eslint-plugin-flowtype": "^3.7.0",
+    "eslint-plugin-html": "^5.0.5",
     "eslint-plugin-import": "^2.17.2",
     "eslint-plugin-jest": "^22.5.1",
     "eslint-plugin-jsx-a11y": "^6.2.1",
+    "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react": "^7.12.4",
     "eslint-plugin-react-hooks": "^1.6.0",
     "eslint-watch": "^5.1.2",
     "gh-pages": "^2.0.1",
+    "husky": "^2.3.0",
     "jasmine-expect": "^4.0.1",
     "jest": "^24.7.1",
     "jest-pnp-resolver": "^1.2.1",
     "jest-resolve": "^24.7.1",
-    "node-sass": "^4.12.0",
     "npm-run-all": "^4.1.5",
+    "prettier": "^1.17.1",
     "react-app-polyfill": "^1.0.0",
-    "react-styleguidist": "^9.0.9",
     "react-test-renderer": "^16.8.6",
     "rollup": "^1.10.1",
     "rollup-plugin-babel": "^4.3.2",
@@ -78,9 +77,12 @@
     "rollup-plugin-peer-deps-external": "^2.2.0",
     "rollup-plugin-postcss": "^2.0.3",
     "rollup-plugin-terser": "^4.0.4",
-    "rollup-plugin-url": "^2.2.1",
-    "webpack": "^4.30.0",
-    "webpack-blocks": "^2.0.0"
+    "rollup-plugin-url": "^2.2.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn lint:fix"
+    }
   },
   "files": [
     "dist"
