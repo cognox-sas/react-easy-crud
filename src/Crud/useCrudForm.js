@@ -6,7 +6,8 @@ import * as requests from './request';
 const validateDependency = (
   field,
   allValues,
-  keys = Object.keys(allValues)
+  keys = Object.keys(allValues),
+  setDependencies
 ) => {
   if (
     field.dependencies &&
@@ -16,11 +17,13 @@ const validateDependency = (
     const dependencyFields = {};
     Object.keys(allValues).forEach(key => {
       if (field.dependencies.fields.indexOf(key) >= 0) {
+        console.log(typeof allValues[key]);
         dependencyFields[key] = allValues[key];
       }
     });
     return (
-      field.dependencies && field.dependencies.onChange(dependencyFields, field)
+      field.dependencies &&
+      field.dependencies.onChange(dependencyFields, field, setDependencies)
     );
   }
 };
@@ -49,8 +52,9 @@ const setValueByType = (data, field) => {
   }
 };
 
-export default function useCrudForm(conf, key, dependencies = null) {
+export default function useCrudForm(conf, key) {
   const [loading, setLoading] = useState(false);
+  const [dependencies, setDependencies] = useState(null);
   const [fields, setFields] = useState(
     conf.fields.filter(
       field =>
@@ -66,15 +70,17 @@ export default function useCrudForm(conf, key, dependencies = null) {
     if (dependencies) {
       setLoading(true);
       (async () => {
-        const { data } = await client.query({
-          query: dependencies.configOptions.query,
-          variables: {
-            [conf.keyName || 'id']: dependencies.configOptions.keySearch,
-          },
-        });
+        const data = await requests[type].getForField(
+          client,
+          dependencies.configOptions.query || dependencies.configOptions.url,
+          dependencies.configOptions.accessData,
+          { [conf.keyName || 'id']: dependencies.configOptions.keySearch },
+          { method: dependencies.configOptions.method }
+        );
+
         const { keyField, map } = dependencies.configOptions;
         const _field = fields.filter(e => e.key === keyField);
-        _field[0].options = data[dependencies.configOptions.accessData].reduce(
+        _field[0].options = data.reduce(
           (items, item) => ({
             ...items,
             ...map(item),
@@ -136,7 +142,12 @@ export default function useCrudForm(conf, key, dependencies = null) {
             }
             if (data[field.updateKey || field.key]) {
               valuesFields[field.key] = {
-                ...validateDependency(field, data),
+                ...validateDependency(
+                  field,
+                  data,
+                  Object.keys(data),
+                  setDependencies
+                ),
                 value: setValueByType(
                   data[field.updateKey || field.key],
                   field
@@ -147,7 +158,7 @@ export default function useCrudForm(conf, key, dependencies = null) {
         } else {
           fields.forEach(field => {
             valuesFields[field.key] = {
-              ...validateDependency(field, {}),
+              ...validateDependency(field, {}, [], setDependencies),
               value: undefined,
             };
           });
@@ -254,7 +265,7 @@ export default function useCrudForm(conf, key, dependencies = null) {
         }
         return {
           ...field,
-          ...validateDependency(field, allValues, keys),
+          ...validateDependency(field, allValues, keys, setDependencies),
           value: allValues[field.key],
         };
       })
