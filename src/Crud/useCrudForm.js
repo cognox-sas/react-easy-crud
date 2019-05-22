@@ -169,7 +169,7 @@ export default function useCrudForm(conf, key) {
     // eslint-disable-next-line
   }, [key]);
 
-  const onSubmit = values => {
+  const onSubmit = (values, callback = () => {}) => {
     setLoading(true);
     const isUpdating =
       !(key === null || key === undefined) && type === 'graphql'
@@ -207,6 +207,7 @@ export default function useCrudForm(conf, key) {
       .then(response => {
         console.log('onSubmitHook', response);
         setLoading(false);
+        callback(response);
       })
       .catch(err => {
         setLoading(false);

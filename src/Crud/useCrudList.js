@@ -153,7 +153,7 @@ export default function useCrudList(conf) {
     return () => subscribed._cleanup && subscribed._cleanup();
   }, [client, conf.getList, type]);
 
-  const onDelete = key => {
+  const onDelete = (key, callback = () => {}) => {
     setLoading(true);
     requests[type]
       .delete(
@@ -171,6 +171,7 @@ export default function useCrudList(conf) {
           console.log('ok');
         }
         setLoading(false);
+        callback(response);
         // Only Rest because GraphQl controller this with refetchQueries
         if (type === 'rest') {
           setDataSource(dataSource.filter(d => d[conf.keyName] !== key));
