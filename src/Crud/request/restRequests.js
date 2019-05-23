@@ -23,6 +23,14 @@ const restRequests = {
     const response = await client[config.method || 'delete'](url, params);
     return response.data;
   },
+  async getForField(client, url, accessData, params, config) {
+    const method = config.method || 'get';
+    const response = await client[method](
+      url,
+      method === 'get' ? { params } : params
+    );
+    return response.data;
+  },
 };
 
 export default restRequests;

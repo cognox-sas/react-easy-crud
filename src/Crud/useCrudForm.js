@@ -3,33 +3,38 @@ import moment from 'moment';
 import { ReactEasyCrudContext } from '../Context';
 import * as requests from './request';
 
-const validateDependency = (
+const validateDependency = async (
   field,
   allValues,
-  keys = Object.keys(allValues)
+  keys = Object.keys(allValues),
+  getForField
 ) => {
   if (
     field.dependencies &&
     field.dependencies.fields.filter(dependency => keys.includes(dependency))
       .length > 0
   ) {
-    if (
-      (field.dependencies.fields || keys).reduce(
-        (allHaveValues, current) => allHaveValues && !!allValues[current],
-        true
-      )
-    ) {
-      return field.dependencies && field.dependencies.onChange();
-    }
+    const dependencyFields = {};
+    Object.keys(allValues).forEach(key => {
+      if (field.dependencies.fields.indexOf(key) >= 0) {
+        dependencyFields[key] = allValues[key];
+      }
+    });
+    return (
+      field.dependencies &&
+      field.dependencies.onChange(dependencyFields, field, getForField)
+    );
   }
 };
 
-const setValueByType = (data, field) => {
+const setValueByType = (data, field, keyName) => {
   const fieldData =
-    typeof data === 'object' && Object.hasOwnProperty.call(data, 'id')
-      ? data.id
+    typeof data === 'object' &&
+    Object.hasOwnProperty.call(data, [
+      (field.configOptions && field.configOptions.keyName) || keyName,
+    ])
+      ? data[(field.configOptions && field.configOptions.keyName) || keyName]
       : data;
-
   switch (field.type) {
     case 'date': {
       return moment(fieldData);
@@ -40,8 +45,24 @@ const setValueByType = (data, field) => {
     case 'bool': {
       return fieldData || false;
     }
+    case 'select': {
+      if (field.mode === 'multiple') {
+        return fieldData.map(
+          item =>
+            item[
+              (field.configOptions && field.configOptions.keyName) || keyName
+            ]
+        );
+      }
+      return fieldData.toString();
+    }
     case 'cascader': {
-      return [data[field.keyParent].id, data.id];
+      return [
+        data[field.keyParent][
+          (field.configOptions && field.configOptions.keyName) || keyName
+        ],
+        data[(field.configOptions && field.configOptions.keyName) || keyName],
+      ];
     }
     case 'rich':
       return fieldData || ' ';
@@ -49,6 +70,40 @@ const setValueByType = (data, field) => {
       return fieldData.toString();
     }
   }
+};
+
+const setOptionsForField = (promises, responses, field, valuesFields) => {
+  let options = {};
+
+  if (
+    field.dependencies &&
+    valuesFields[field.key] &&
+    Object.keys(valuesFields[field.key].options || {}).length > 0
+  ) {
+    options =
+      (valuesFields[field.key] && valuesFields[field.key].options) || {};
+  } else if (
+    promises.keys[field.key] >= 0 &&
+    (responses[promises.keys[field.key]] && field.type !== 'cascader')
+  ) {
+    options =
+      responses[promises.keys[field.key]].data[
+        field.configOptions.accessData
+      ].reduce(
+        (items, item) => ({
+          ...items,
+          ...field.configOptions.map(item),
+        }),
+        {}
+      ) || {};
+  } else if (field.type === 'cascader') {
+    options = responses[promises.keys[field.key]].data[
+      field.configOptions.accessData
+    ].filter(item => item[field.keyChildren].length > 0);
+  } else {
+    options = field.options || {};
+  }
+  return options;
 };
 
 export default function useCrudForm(conf, key) {
@@ -64,6 +119,9 @@ export default function useCrudForm(conf, key) {
     )
   );
   const { client, type } = useContext(ReactEasyCrudContext);
+
+  const getForField = async (request, params, accessData, method) =>
+    requests[type].getForField(client, request, accessData, params, { method });
 
   useEffect(() => {
     async function init() {
@@ -97,36 +155,50 @@ export default function useCrudForm(conf, key) {
             conf.getByKey.accessData,
             { [conf.keyName || 'id']: key }
           );
-          fields.forEach(field => {
-            if (field.type === 'file') {
-              const name = data[field.updateKey || field.key];
-              if (name !== null) {
-                const fileList = [
-                  {
-                    uid: `${name}`,
-                    name: `${name}`,
-                    status: `done`,
-                    url: field.resolvePath(name),
-                  },
-                ];
-                field.props.fileList = fileList;
+
+          const valuesByField = await Promise.all(
+            fields.map(async field => {
+              if (field.type === 'file') {
+                const name = data[field.updateKey || field.key];
+                if (name !== null) {
+                  const fileList = [
+                    {
+                      uid: `${name}`,
+                      name: `${name}`,
+                      status: `done`,
+                      url: field.resolvePath(name),
+                    },
+                  ];
+                  field.props.fileList = fileList;
+                }
               }
-            }
-            if (data[field.updateKey || field.key]) {
-              valuesFields[field.key] = {
-                ...validateDependency(field, data),
-                value: setValueByType(
-                  data[field.updateKey || field.key],
-                  field
-                ),
-              };
-            }
+              if (data[field.updateKey || field.key]) {
+                const propsFromDependency = await validateDependency(
+                  field,
+                  data,
+                  Object.keys(data),
+                  getForField
+                );
+                return {
+                  key: field.key,
+                  ...propsFromDependency,
+                  value: setValueByType(
+                    data[field.updateKey || field.key],
+                    field,
+                    conf.keyName
+                  ),
+                };
+              }
+            })
+          );
+          valuesByField.forEach(vbf => {
+            valuesFields[vbf.key] = vbf;
           });
           setLoadingForm(false);
         } else {
           fields.forEach(field => {
             valuesFields[field.key] = {
-              ...validateDependency(field, {}),
+              ...validateDependency(field, {}, [], getForField),
               value: setValueByType(field.initialValue || undefined, field),
             };
           });
@@ -134,26 +206,12 @@ export default function useCrudForm(conf, key) {
 
         setFields(
           fields.map(field => {
-            let options =
-              promises.keys[field.key] >= 0
-                ? (responses[promises.keys[field.key]] &&
-                    field.type !== 'cascader' &&
-                    responses[promises.keys[field.key]].data[
-                      field.configOptions.accessData
-                    ].reduce(
-                      (items, item) => ({
-                        ...items,
-                        ...field.configOptions.map(item),
-                      }),
-                      {}
-                    )) ||
-                  {}
-                : field.options || {};
-            if (field.type === 'cascader') {
-              options = responses[promises.keys[field.key]].data[
-                field.configOptions.accessData
-              ].filter(item => item[field.keyChildren].length > 0);
-            }
+            const options = setOptionsForField(
+              promises,
+              responses,
+              field,
+              valuesFields
+            );
             return {
               ...field,
               ...(valuesFields[field.key] || {}),
@@ -215,28 +273,57 @@ export default function useCrudForm(conf, key) {
       });
   };
 
-  const onValuesChanged = (props, changedValues, allValues) => {
+  const onValuesChanged = async (props, changedValues, allValues) => {
     const keys = Object.keys(changedValues);
+
     setFields(
-      fields.map(field => {
-        if (field.type === 'file' && keys[0] === field.key) {
-          const info = changedValues[keys[0]];
-          let filesL = [...info.fileList];
-          filesL = filesL.slice(-2);
-          filesL = filesL.map(file => {
-            if (file.response) {
-              file.url = file.response.url;
-            }
-            return file;
-          });
-          field.props.fileList = filesL;
-        }
-        return {
-          ...field,
-          ...validateDependency(field, allValues, keys),
-          value: allValues[field.key],
-        };
-      })
+      await Promise.all(
+        fields.map(async field => {
+          if (field.type === 'file' && keys[0] === field.key) {
+            const info = changedValues[keys[0]];
+            let filesL = [...info.fileList];
+            filesL = filesL.slice(-2);
+            filesL = filesL.map(file => {
+              if (file.response) {
+                file.url = file.response.url;
+              }
+              return file;
+            });
+            field.props.fileList = filesL;
+          }
+
+          if (
+            !(
+              field.dependencies &&
+              field.dependencies.fields.filter(dependency =>
+                keys.includes(dependency)
+              ).length > 0
+            )
+          ) {
+            return {
+              ...field,
+              value: allValues[field.key],
+            };
+          }
+
+          const propsFromDependency = await validateDependency(
+            field,
+            allValues,
+            keys,
+            getForField
+          );
+          if (propsFromDependency && propsFromDependency.value) {
+            props.form.setFieldsValue({
+              [field.key]: propsFromDependency.value,
+            });
+          }
+          return {
+            ...field,
+            value: allValues[field.key],
+            ...propsFromDependency,
+          };
+        })
+      )
     );
   };
 
