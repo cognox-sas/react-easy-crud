@@ -35,9 +35,10 @@ const setValueByType = (data, field) => {
       return moment(fieldData);
     }
     case 'number':
+      return fieldData;
     case 'radio':
     case 'bool': {
-      return fieldData;
+      return fieldData || false;
     }
     case 'cascader': {
       return [data[field.keyParent].id, data.id];
@@ -126,7 +127,7 @@ export default function useCrudForm(conf, key) {
           fields.forEach(field => {
             valuesFields[field.key] = {
               ...validateDependency(field, {}),
-              value: undefined,
+              value: setValueByType(field.initialValue || undefined, field),
             };
           });
         }

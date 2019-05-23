@@ -33,15 +33,15 @@ const RichText = ({ onChange, value }) => {
   }, [content, htmlValue, onChange]);
 
   return (
-      <Editor
-        editorState={content}
-        wrapperClassName="custom-rich-wrapper"
-        editorClassName="custom-rich-editor"
-        onEditorStateChange={e => setContent(e)}
-        localization={{
-          locale: localize,
-        }}
-      />
+    <Editor
+      editorState={content}
+      wrapperClassName="custom-rich-wrapper"
+      editorClassName="custom-rich-editor"
+      onEditorStateChange={e => setContent(e)}
+      localization={{
+        locale: localize,
+      }}
+    />
   );
 };
 
