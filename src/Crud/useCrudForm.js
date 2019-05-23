@@ -35,13 +35,16 @@ const setValueByType = (data, field) => {
       return moment(fieldData);
     }
     case 'number':
+      return fieldData;
     case 'radio':
     case 'bool': {
-      return fieldData;
+      return fieldData || false;
     }
     case 'cascader': {
       return [data[field.keyParent].id, data.id];
     }
+    case 'rich':
+      return fieldData || ' ';
     default: {
       return fieldData.toString();
     }
@@ -50,6 +53,7 @@ const setValueByType = (data, field) => {
 
 export default function useCrudForm(conf, key) {
   const [loading, setLoading] = useState(false);
+  const [loadingForm, setLoadingForm] = useState(!!key);
   const [fields, setFields] = useState(
     conf.fields.filter(
       field =>
@@ -118,11 +122,12 @@ export default function useCrudForm(conf, key) {
               };
             }
           });
+          setLoadingForm(false);
         } else {
           fields.forEach(field => {
             valuesFields[field.key] = {
               ...validateDependency(field, {}),
-              value: undefined,
+              value: setValueByType(field.initialValue || undefined, field),
             };
           });
         }
@@ -165,7 +170,7 @@ export default function useCrudForm(conf, key) {
     // eslint-disable-next-line
   }, [key]);
 
-  const onSubmit = values => {
+  const onSubmit = (values, callback = () => {}) => {
     setLoading(true);
     const isUpdating =
       !(key === null || key === undefined) && type === 'graphql'
@@ -190,7 +195,7 @@ export default function useCrudForm(conf, key) {
     requests[type][ACTION](
       client,
       conf[ACTION].query || conf[ACTION].url.replace('{keyName}', key || ''),
-      conf.delete.accessData || null,
+      conf[ACTION].accessData || null,
       { ...values, [conf.keyName || 'id']: key || undefined },
       {
         method: conf[ACTION].method,
@@ -201,8 +206,8 @@ export default function useCrudForm(conf, key) {
       }
     )
       .then(response => {
-        console.log('onSubmitHook', response);
         setLoading(false);
+        callback(response);
       })
       .catch(err => {
         setLoading(false);
@@ -235,5 +240,5 @@ export default function useCrudForm(conf, key) {
     );
   };
 
-  return { fields, onSubmit, loading, onValuesChanged };
+  return { fields, onSubmit, loading, onValuesChanged, loadingForm };
 }

@@ -16,7 +16,7 @@ const graphqlRequests = {
       variables: params,
       refetchQueries: config.refetchQueries,
     });
-    return response[accessData];
+    return response.data[accessData];
   },
   async create(client, mutation, accessData, params, config) {
     const response = await client.mutate({
@@ -24,7 +24,7 @@ const graphqlRequests = {
       variables: params,
       refetchQueries: config.refetchQueries,
     });
-    return response[accessData];
+    return response.data[accessData];
   },
   async update(client, mutation, accessData, params, config) {
     const response = await client.mutate({
@@ -32,7 +32,7 @@ const graphqlRequests = {
       variables: params,
       refetchQueries: config.refetchQueries,
     });
-    return response[accessData];
+    return response.data[accessData];
   },
   async delete(client, mutation, accessData, params, config) {
     const response = await client.mutate({
