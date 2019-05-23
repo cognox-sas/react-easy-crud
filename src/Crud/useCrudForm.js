@@ -194,7 +194,7 @@ export default function useCrudForm(conf, key) {
     requests[type][ACTION](
       client,
       conf[ACTION].query || conf[ACTION].url.replace('{keyName}', key || ''),
-      conf.delete.accessData || null,
+      conf[ACTION].accessData || null,
       { ...values, [conf.keyName || 'id']: key || undefined },
       {
         method: conf[ACTION].method,
@@ -205,7 +205,6 @@ export default function useCrudForm(conf, key) {
       }
     )
       .then(response => {
-        console.log('onSubmitHook', response);
         setLoading(false);
         callback(response);
       })

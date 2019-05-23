@@ -91,7 +91,6 @@ const getForm = (field, getFieldDecorator) => {
     case 'rich': {
       return getFieldDecorator(field.key, {
         ...globalOptions,
-        initialValue: field.value,
         rules: field.rules,
       })(<RichText />);
     }
