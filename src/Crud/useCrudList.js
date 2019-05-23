@@ -153,7 +153,7 @@ export default function useCrudList(conf) {
     return () => subscribed._cleanup && subscribed._cleanup();
   }, [client, conf.getList, type]);
 
-  const onDelete = key => {
+  const onDelete = (key, callback = () => {}) => {
     setLoading(true);
     requests[type]
       .delete(
@@ -175,6 +175,7 @@ export default function useCrudList(conf) {
         if (type === 'rest') {
           setDataSource(dataSource.filter(d => d[conf.keyName] !== key));
         }
+        callback(response);
       })
       .catch(e => {
         setLoading(false);

@@ -87,6 +87,10 @@
   "files": [
     "dist"
   ],
+  "dependencies": {
+    "draftjs-to-html": "^0.8.4",
+    "react-draft-wysiwyg": "^1.13.2"
+  },
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}",
