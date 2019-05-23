@@ -65,7 +65,11 @@ const getForm = (field, getFieldDecorator) => {
         ...globalOptions,
         rules: field.rules,
       })(
-        <Select disabled={field.disabled || false} mode={field.mode || false}>
+        <Select
+          disabled={field.disabled || false}
+          mode={field.mode || false}
+          allowClear
+        >
           {Object.keys(field.options).map(keyOption => (
             <Select.Option key={keyOption} value={keyOption}>
               {field.options[keyOption]}

@@ -43,7 +43,6 @@ const graphqlRequests = {
     return response.data[accessData];
   },
   async getForField(client, query, accessData, params) {
-    debugger;
     const response = await client.query({ query, variables: params });
     return response.data[accessData];
   },
