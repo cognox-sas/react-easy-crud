@@ -47,14 +47,19 @@ const setValueByType = (data, field, keyName) => {
     }
     case 'select': {
       if (field.mode === 'multiple') {
-        return fieldData.map(
-          item =>
-            item[
-              (field.configOptions && field.configOptions.keyName) || keyName
-            ]
+        return (
+          (fieldData &&
+            fieldData.map(
+              item =>
+                item[
+                  (field.configOptions && field.configOptions.keyName) ||
+                    keyName
+                ]
+            )) ||
+          []
         );
       }
-      return fieldData.toString();
+      return (fieldData && fieldData.toString()) || '';
     }
     case 'cascader': {
       return [
@@ -67,7 +72,7 @@ const setValueByType = (data, field, keyName) => {
     case 'rich':
       return fieldData || ' ';
     default: {
-      return fieldData.toString();
+      return (fieldData && fieldData.toString()) || null;
     }
   }
 };
