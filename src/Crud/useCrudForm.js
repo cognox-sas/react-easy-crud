@@ -48,12 +48,15 @@ const setValueByType = (data, field, keyName) => {
     case 'select': {
       if (field.mode === 'multiple') {
         return (
-          fieldData.map(
-            item =>
-              item[
-                (field.configOptions && field.configOptions.keyName) || keyName
-              ]
-          ) || []
+          (fieldData &&
+            fieldData.map(
+              item =>
+                item[
+                  (field.configOptions && field.configOptions.keyName) ||
+                    keyName
+                ]
+            )) ||
+          []
         );
       }
       return (fieldData && fieldData.toString()) || '';
