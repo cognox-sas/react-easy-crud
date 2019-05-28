@@ -30,6 +30,7 @@ const validateDependency = async (
 const setValueByType = (data, field, keyName) => {
   const fieldData =
     typeof data === 'object' &&
+    data !== null &&
     Object.hasOwnProperty.call(data, [
       (field.configOptions && field.configOptions.keyName) || keyName,
     ])
@@ -114,15 +115,7 @@ const setOptionsForField = (promises, responses, field, valuesFields) => {
 export default function useCrudForm(conf, key) {
   const [loading, setLoading] = useState(false);
   const [loadingForm, setLoadingForm] = useState(!!key);
-  const [fields, setFields] = useState(
-    conf.fields.filter(
-      field =>
-        !(
-          Object.hasOwnProperty.call(field, 'hidden') &&
-          field.hidden.includes('form')
-        )
-    )
-  );
+  const [fields, setFields] = useState(conf.fields);
   const { client, type } = useContext(ReactEasyCrudContext);
 
   const getForField = async (request, params, accessData, method) =>
@@ -194,6 +187,14 @@ export default function useCrudForm(conf, key) {
                   ),
                 };
               }
+              return {
+                key: field.key,
+                value: setValueByType(
+                  data[field.updateKey || field.key],
+                  field,
+                  conf.keyName
+                ),
+              };
             })
           );
           valuesByField.forEach(vbf => {

@@ -43,7 +43,14 @@ const Form = ({
     <Fragment>
       {title}
       <FormAntd onSubmit={onSubmitForm} layout="horizontal">
-        {fields.map(field => (
+      {fields.map(field => {
+        if (
+          Object.hasOwnProperty.call(field, 'hidden') &&
+          field.hidden.includes('form')
+        ) {
+          return null;
+        }
+        return (
           <FormAntd.Item
             key={field.key}
             label={field.title}
@@ -51,7 +58,8 @@ const Form = ({
           >
             {getForm(field, getFieldDecorator)}
           </FormAntd.Item>
-        ))}
+        );
+      })}
         <Row gutter={8}>
           <Col
             sm={{ span: 3, offset: 3 }}
