@@ -11,6 +11,7 @@ import {
   Upload,
   Cascader,
 } from 'antd';
+
 import { RichText } from './components/types';
 
 const getForm = (field, getFieldDecorator) => {
@@ -95,7 +96,13 @@ const getForm = (field, getFieldDecorator) => {
       return getFieldDecorator(field.key, {
         ...globalOptions,
         rules: field.rules,
-      })(<RichText />);
+      })(
+        <RichText
+          typeFormat={field.typeFormat}
+          convertToRaw={field.convertToRaw}
+          convertToDraft={field.convertToDraft}
+        />
+      );
     }
     case 'file': {
       return getFieldDecorator(field.key, {

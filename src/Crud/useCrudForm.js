@@ -124,7 +124,6 @@ export default function useCrudForm(conf, key) {
   useEffect(() => {
     async function init() {
       try {
-        setLoading(true);
         const valuesFields = {};
         const promises = { all: [], keys: {} };
         let i = 0;
@@ -146,6 +145,7 @@ export default function useCrudForm(conf, key) {
         const responses = await Promise.all(promises.all);
 
         if (key) {
+          setLoadingForm(true);
           const data = await requests[type].getByKey(
             client,
             conf.getByKey.query ||
@@ -200,7 +200,6 @@ export default function useCrudForm(conf, key) {
           valuesByField.forEach(vbf => {
             valuesFields[vbf.key] = vbf;
           });
-          setLoadingForm(false);
         } else {
           fields.forEach(field => {
             valuesFields[field.key] = {
@@ -225,6 +224,9 @@ export default function useCrudForm(conf, key) {
             };
           })
         );
+        if (key) {
+          setLoadingForm(false);
+        }
       } catch (e) {
         console.log(e);
       }
