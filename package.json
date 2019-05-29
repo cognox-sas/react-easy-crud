@@ -5,8 +5,8 @@
   "author": "miguelcast",
   "license": "MIT",
   "repository": "cognox-sas/react-easy-crud",
-  "main": "../react-easy-crud-docs/node_modules/react-easy-crud/dist/index.js",
-  "module": "../react-easy-crud-docs/node_modules/react-easy-crud/dist/index.es.js",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
   "jsnext:main": "dist/index.es.js",
   "engines": {
     "node": ">=8",
