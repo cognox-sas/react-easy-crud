@@ -11,7 +11,7 @@ import PropTypes from 'prop-types';
 import { ReactEasyCrudContext } from '../../../Context';
 
 const convertRichToRawContent = (rich, convertToRaw) =>
-  convertToRaw(convertToRawLib(rich.getCurrentContent()));
+  convertToRaw(rich.getCurrentContent(), convertToRawLib);
 
 const convertHtmlToRich = (raw = ' ', htmlToDraft) => {
   const contentBlock = htmlToDraft(raw);
@@ -24,7 +24,7 @@ const convertHtmlToRich = (raw = ' ', htmlToDraft) => {
 };
 
 const convertMdToRich = (raw = '', markdownToDraft) =>
-  EditorState.createWithContent(convertFromRaw(markdownToDraft(raw)));
+  EditorState.createWithContent(markdownToDraft(raw, convertFromRaw));
 
 const RichText = ({
   onChange,
