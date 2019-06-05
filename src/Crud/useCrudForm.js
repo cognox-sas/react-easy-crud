@@ -320,7 +320,10 @@ export default function useCrudForm(conf, key) {
             keys,
             getForField
           );
-          if (propsFromDependency && propsFromDependency.value) {
+          if (
+            propsFromDependency &&
+            Object.hasOwnProperty.call(propsFromDependency, 'value')
+          ) {
             props.form.setFieldsValue({
               [field.key]: propsFromDependency.value,
             });
