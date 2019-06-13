@@ -112,6 +112,16 @@ const setOptionsForField = (promises, responses, field, valuesFields) => {
   return options;
 };
 
+function resolveValueForField(field, record) {
+  if (field.updateKey) {
+    if (typeof field.updateKey === 'function') {
+      return field.updateKey(record);
+    }
+    return record[field.updateKey];
+  }
+  return record[field.key];
+}
+
 export default function useCrudForm(conf, key) {
   const [loading, setLoading] = useState(false);
   const [loadingForm, setLoadingForm] = useState(!!key);
@@ -156,21 +166,21 @@ export default function useCrudForm(conf, key) {
 
           const valuesByField = await Promise.all(
             fields.map(async field => {
+              const valueField = resolveValueForField(field, data);
               if (field.type === 'file') {
-                const name = data[field.updateKey || field.key];
-                if (name !== null) {
+                if (valueField !== null) {
                   const fileList = [
                     {
-                      uid: `${name}`,
-                      name: `${name}`,
+                      uid: `${valueField}`,
+                      name: `${valueField}`,
                       status: `done`,
-                      url: field.resolvePath(name),
+                      url: field.resolvePath(valueField),
                     },
                   ];
                   field.props.fileList = fileList;
                 }
               }
-              if (data[field.updateKey || field.key]) {
+              if (valueField) {
                 const propsFromDependency = await validateDependency(
                   field,
                   data,
@@ -180,20 +190,12 @@ export default function useCrudForm(conf, key) {
                 return {
                   key: field.key,
                   ...propsFromDependency,
-                  value: setValueByType(
-                    data[field.updateKey || field.key],
-                    field,
-                    conf.keyName
-                  ),
+                  value: setValueByType(valueField, field, conf.keyName),
                 };
               }
               return {
                 key: field.key,
-                value: setValueByType(
-                  data[field.updateKey || field.key],
-                  field,
-                  conf.keyName
-                ),
+                value: setValueByType(valueField, field, conf.keyName),
               };
             })
           );
