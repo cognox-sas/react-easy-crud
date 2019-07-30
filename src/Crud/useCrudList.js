@@ -94,7 +94,7 @@ const resolveFilter = field => {
   return undefined;
 };
 
-const fieldsToColumns = fields =>
+export const fieldsToColumns = fields =>
   fields
     .filter(
       field =>
