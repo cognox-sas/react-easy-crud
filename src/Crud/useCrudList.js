@@ -39,7 +39,7 @@ const FilterIcon = filtered => (
 
 const resolveFilter = field => {
   if (field.filter === true) {
-    switch (field.type) {
+    switch (field.filterType || field.type) {
       case 'date':
       case 'number':
       case 'select':
@@ -64,6 +64,7 @@ const resolveFilter = field => {
           },
         };
       }
+      case 'checkbox':
       case 'radio': {
         const keysOptions = Object.keys(field.options);
         return {
@@ -72,7 +73,9 @@ const resolveFilter = field => {
             text: field.options[value],
           })),
           filterMultiple: keysOptions.length > 2,
-          onFilter: (value, record) => record[field.key].indexOf(value) === 0,
+          onFilter: (value, record) =>
+            ((record[field.key] && record[field.key]) || '').indexOf(value) ===
+            0,
         };
       }
       case 'bool': {
@@ -83,7 +86,8 @@ const resolveFilter = field => {
             text: field.options[value],
           })),
           filterMultiple: false,
-          onFilter: (value, record) => record[field.key].toString() === value,
+          onFilter: (value, record) =>
+            (record[field.key] || false).toString() === value,
         };
       }
       default: {
