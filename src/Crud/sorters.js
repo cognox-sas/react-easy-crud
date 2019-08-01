@@ -1,16 +1,19 @@
-export const sortString = (key, keyObject = 'name') => (a, b) => {
-  if (
-    (a[key] && typeof a[key] === 'object') ||
-    (b[key] && typeof b[key] === 'object')
-  ) {
-    const valueA = a[key] && a[key][keyObject];
-    const valueB = b[key] && b[key][keyObject];
-    return (valueA || '').localeCompare(valueB || '');
+const resolveValue = (key, record, getValue, defaultValue) => {
+  if (typeof getValue === 'function') {
+    return getValue(record) || defaultValue;
   }
-  return (a[key] || '').localeCompare(b[key] || '');
+  return record[key] || defaultValue;
 };
-export const sortNumber = key => (a, b) => a[key] - b[key];
-export const sortBool = key => (a, b) => b[key] - a[key];
+
+export const sortString = (key, getValue) => (a, b) =>
+  resolveValue(key, a, getValue, '').localeCompare(
+    resolveValue(key, b, getValue, '')
+  );
+export const sortNumber = (key, getValue) => (a, b) =>
+  resolveValue(key, a, getValue) - resolveValue(key, b, getValue);
+export const sortBool = (key, getValue) => (a, b) =>
+  resolveValue(key, b, getValue, false) - resolveValue(key, a, getValue, false);
+
 export const response = `
   message
   status

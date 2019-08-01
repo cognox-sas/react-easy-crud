@@ -37,6 +37,11 @@ const FilterIcon = filtered => (
   />
 );
 
+const resolveValueFor = (field, record, defaultValue = '') =>
+  typeof field.getValue === 'function'
+    ? field.getValue(record) || defaultValue
+    : record[field.columnKey || field.key] || defaultValue;
+
 const resolveFilter = field => {
   if (field.filter === true) {
     switch (field.filterType || field.type) {
@@ -50,13 +55,7 @@ const resolveFilter = field => {
             field.type === 'date' ? DateTableFilter : SearchTableFilter,
           filterIcon: FilterIcon,
           onFilter: (value, record) => {
-            if (!record[field.columnKey || field.key]) {
-              return false;
-            }
-            const valueForFilter =
-              typeof record[field.columnKey || field.key] === 'object'
-                ? record[field.columnKey || field.key].name
-                : record[field.columnKey || field.key];
+            const valueForFilter = resolveValueFor(field, record);
             return valueForFilter
               .toString()
               .toLowerCase()
@@ -74,8 +73,7 @@ const resolveFilter = field => {
           })),
           filterMultiple: keysOptions.length > 2,
           onFilter: (value, record) =>
-            ((record[field.key] && record[field.key]) || '').indexOf(value) ===
-            0,
+            resolveValueFor(field, record).indexOf(value) === 0,
         };
       }
       case 'bool': {
@@ -87,7 +85,7 @@ const resolveFilter = field => {
           })),
           filterMultiple: false,
           onFilter: (value, record) =>
-            (record[field.key] || false).toString() === value,
+            resolveValueFor(field, record, false).toString() === value,
         };
       }
       default: {
@@ -115,8 +113,8 @@ export const fieldsToColumns = fields =>
         field.sorter !== true
           ? false
           : typeSorter[field.type]
-          ? typeSorter[field.type](field.key)
-          : typeSorter.string(field.key),
+          ? typeSorter[field.type](field.key, field.getValue)
+          : typeSorter.string(field.key, field.getValue),
       render: resolveRender(field),
       ...(field.columnStyle || {}),
       ...(resolveFilter(field) || {}),
