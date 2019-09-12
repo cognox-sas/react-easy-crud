@@ -42,7 +42,7 @@ const resolveValueFor = (field, record, defaultValue = '') =>
     ? field.getValue(record) || defaultValue
     : record[field.columnKey || field.key] || defaultValue;
 
-const resolveFilter = field => {
+const resolveFilter = (field, translation) => {
   if (field.filter === true) {
     switch (field.filterType || field.type) {
       case 'date':
@@ -51,8 +51,13 @@ const resolveFilter = field => {
       case 'textarea':
       case 'string': {
         return {
-          filterDropdown:
-            field.type === 'date' ? DateTableFilter : SearchTableFilter,
+          filterDropdown: function FilterDrop(props) {
+            return field.type === 'date' ? (
+              <DateTableFilter {...props} translation={translation} />
+            ) : (
+              <SearchTableFilter {...props} translation={translation} />
+            );
+          },
           filterIcon: FilterIcon,
           onFilter: (value, record) => {
             const valueForFilter = resolveValueFor(field, record);
@@ -96,7 +101,7 @@ const resolveFilter = field => {
   return undefined;
 };
 
-export const fieldsToColumns = fields =>
+export const fieldsToColumns = (fields, translation) =>
   fields
     .filter(
       field =>
@@ -117,14 +122,17 @@ export const fieldsToColumns = fields =>
           : typeSorter.string(field.key, field.getValue),
       render: resolveRender(field),
       ...(field.columnStyle || {}),
-      ...(resolveFilter(field) || {}),
+      ...(resolveFilter(field, translation) || {}),
     }));
 
-export default function useCrudList(conf) {
+export default function useCrudList(conf, translation) {
   const { client, type } = useContext(ReactEasyCrudContext);
   const [dataSource, setDataSource] = useState([]);
   const [loading, setLoading] = useState(false);
-  const columns = useMemo(() => fieldsToColumns(conf.fields), [conf.fields]);
+  const columns = useMemo(() => fieldsToColumns(conf.fields, translation), [
+    conf.fields,
+    translation,
+  ]);
 
   useEffect(() => {
     setLoading(true);

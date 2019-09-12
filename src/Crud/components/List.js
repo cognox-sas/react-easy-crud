@@ -26,6 +26,8 @@ const List = ({
             {action.confirm ? (
               <Popconfirm
                 title={action.confirm}
+                okText={action.okText || 'Ok'}
+                cancelText={action.cancelText || 'Cancel'}
                 placement="bottomRight"
                 onConfirm={() => action.onClick(record)}
               >

@@ -7,6 +7,7 @@ const SearchTableFilter = ({
   setSelectedKeys,
   confirm,
   clearFilters,
+  translation,
 }) => (
   <Row gutter={8} className="custom-search-filter">
     <Col span={24} style={{ paddingBottom: 8 }}>
@@ -14,17 +15,17 @@ const SearchTableFilter = ({
         value={selectedKeys[0]}
         onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
         onPressEnter={() => confirm()}
-        placeholder="Search"
+        placeholder={translation('Search')}
       />
     </Col>
     <Col span={12} className="custom-align-right">
       <Button htmlType="button" type="primary" ghost onClick={() => confirm()}>
-        Ok
+        {translation('Ok')}
       </Button>
     </Col>
     <Col span={12}>
       <Button htmlType="button" onClick={() => clearFilters()}>
-        Reset
+        {translation('Reset')}
       </Button>
     </Col>
   </Row>
@@ -35,6 +36,7 @@ SearchTableFilter.propTypes = {
   setSelectedKeys: PropTypes.func,
   confirm: PropTypes.func,
   clearFilters: PropTypes.func,
+  translation: PropTypes.func,
 };
 
 export default SearchTableFilter;
