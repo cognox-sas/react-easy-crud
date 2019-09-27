@@ -259,6 +259,14 @@ export default function useCrudForm(conf, key) {
         ACTION = 'create';
       }
     }
+    const queries = [{ query: conf.getList.query || null }, isUpdating];
+    if (conf.getQueriesUpdate && conf.getQueriesUpdate.length > 0) {
+      conf.getQueriesUpdate.forEach(item =>
+        queries.push({
+          query: item.query || null,
+        })
+      );
+    }
 
     requests[type][ACTION](
       client,
@@ -267,10 +275,7 @@ export default function useCrudForm(conf, key) {
       { ...values, [conf.keyName || 'id']: key || undefined },
       {
         method: conf[ACTION].method,
-        refetchQueries: [
-          { query: conf.getList.query || null },
-          isUpdating,
-        ].filter(Boolean),
+        refetchQueries: queries.filter(Boolean),
       }
     )
       .then(response => {
@@ -291,7 +296,7 @@ export default function useCrudForm(conf, key) {
         fields.map(async field => {
           if (field.type === 'file' && keys[0] === field.key) {
             const info = changedValues[keys[0]];
-            let filesL = [...info.fileList];
+            let filesL = info && info.fileList ? [...info.fileList] : [];
             filesL = filesL.slice(-2);
             filesL = filesL.map(file => {
               if (file.response) {

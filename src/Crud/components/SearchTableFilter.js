@@ -15,17 +15,17 @@ const SearchTableFilter = ({
         value={selectedKeys[0]}
         onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
         onPressEnter={() => confirm()}
-        placeholder={translation('Search')}
+        placeholder={translation ? translation('Search') : 'Search'}
       />
     </Col>
     <Col span={12} className="custom-align-right">
       <Button htmlType="button" type="primary" ghost onClick={() => confirm()}>
-        {translation('Ok')}
+        {translation ? translation('Ok') : 'Ok'}
       </Button>
     </Col>
     <Col span={12}>
       <Button htmlType="button" onClick={() => clearFilters()}>
-        {translation('Reset')}
+        {translation ? translation('Reset') : 'Reset'}
       </Button>
     </Col>
   </Row>
