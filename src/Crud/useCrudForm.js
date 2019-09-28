@@ -3,6 +3,15 @@ import moment from 'moment';
 import { ReactEasyCrudContext } from '../Context';
 import * as requests from './request';
 
+const trimValues = values => {
+  Object.keys(values).forEach(i => {
+    if (typeof values[i] === 'string') {
+      values[i] = values[i].trim();
+    }
+  });
+  return values;
+};
+
 const validateDependency = async (
   field,
   allValues,
@@ -240,6 +249,7 @@ export default function useCrudForm(conf, key) {
 
   const onSubmit = (values, callback = () => {}) => {
     setLoading(true);
+    trimValues(values);
     const isUpdating =
       !(key === null || key === undefined) && type === 'graphql'
         ? {
