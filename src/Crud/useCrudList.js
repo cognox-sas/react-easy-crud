@@ -165,6 +165,14 @@ export default function useCrudList(conf, translation) {
 
   const onDelete = (key, callback = () => {}) => {
     setLoading(true);
+    const queries = [{ query: conf.getList.query || null }];
+    if (conf.getQueriesUpdate && conf.getQueriesUpdate.length > 0) {
+      conf.getQueriesUpdate.forEach(item =>
+        queries.push({
+          query: item.query || null,
+        })
+      );
+    }
     requests[type]
       .delete(
         client,
@@ -172,7 +180,7 @@ export default function useCrudList(conf, translation) {
         conf.delete.accessData || null,
         { [conf.keyName || 'id']: key },
         {
-          refetchQueries: [{ query: conf.getList.query || null }],
+          refetchQueries: queries,
           method: conf.delete.method || undefined,
         }
       )
