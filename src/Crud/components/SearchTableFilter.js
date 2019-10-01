@@ -7,7 +7,7 @@ const SearchTableFilter = ({
   setSelectedKeys,
   confirm,
   clearFilters,
-  translation,
+  translation = text => text,
 }) => (
   <Row gutter={8} className="custom-search-filter">
     <Col span={24} style={{ paddingBottom: 8 }}>
@@ -37,6 +37,10 @@ SearchTableFilter.propTypes = {
   confirm: PropTypes.func,
   clearFilters: PropTypes.func,
   translation: PropTypes.func,
+};
+
+SearchTableFilter.defaultProps = {
+  translation: t => t,
 };
 
 export default SearchTableFilter;
