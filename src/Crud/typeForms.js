@@ -28,13 +28,19 @@ const getForm = (field, getFieldDecorator) => {
       return getFieldDecorator(field.key, {
         ...globalOptions,
         rules: field.rules,
-      })(<DatePicker disabled={field.disabled || false} {...field.Context} />);
+      })(
+        <DatePicker
+          disabled={field.disabled || false}
+          {...field.Context}
+          {...field.props}
+        />
+      );
     }
     case 'number': {
       return getFieldDecorator(field.key, {
         ...globalOptions,
         rules: field.rules,
-      })(<InputNumber disabled={field.disabled || false} />);
+      })(<InputNumber disabled={field.disabled || false} {...field.props} />);
     }
     case 'bool': {
       return getFieldDecorator(field.key, {
@@ -46,14 +52,14 @@ const getForm = (field, getFieldDecorator) => {
           : Object.hasOwnProperty.call(field, 'initialValue')
           ? field.initialValue
           : false,
-      })(<Switch disabled={field.disabled || false} />);
+      })(<Switch disabled={field.disabled || false} {...field.props} />);
     }
     case 'radio': {
       return getFieldDecorator(field.key, {
         ...globalOptions,
         rules: field.rules,
       })(
-        <Radio.Group disabled={field.disabled || false}>
+        <Radio.Group disabled={field.disabled || false} {...field.props}>
           {Object.keys(field.options).map(keyOption => (
             <Radio key={keyOption} value={keyOption}>
               {field.options[keyOption]}
@@ -71,6 +77,7 @@ const getForm = (field, getFieldDecorator) => {
           disabled={field.disabled || false}
           mode={field.mode || false}
           allowClear
+          {...field.props}
         >
           {Object.keys(field.options).map(keyOption => (
             <Select.Option key={keyOption} value={keyOption}>
@@ -84,13 +91,17 @@ const getForm = (field, getFieldDecorator) => {
       return getFieldDecorator(field.key, {
         ...globalOptions,
         rules: field.rules,
-      })(<Input.Password disabled={field.disabled || false} />);
+      })(
+        <Input.Password disabled={field.disabled || false} {...field.props} />
+      );
     }
     case 'textarea': {
       return getFieldDecorator(field.key, {
         ...globalOptions,
         rules: field.rules,
-      })(<Input.TextArea disabled={field.disabled || false} />);
+      })(
+        <Input.TextArea disabled={field.disabled || false} {...field.props} />
+      );
     }
     case 'rich': {
       return getFieldDecorator(field.key, {
@@ -142,7 +153,7 @@ const getForm = (field, getFieldDecorator) => {
       return getFieldDecorator(field.key, {
         ...globalOptions,
         rules: field.rules,
-      })(<Input disabled={field.disabled || false} />);
+      })(<Input disabled={field.disabled || false} {...field.props} />);
     }
   }
 };
