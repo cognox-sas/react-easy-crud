@@ -112,6 +112,7 @@ const getForm = (field, getFieldDecorator) => {
           typeFormat={field.typeFormat}
           convertToRaw={field.convertToRaw}
           convertToDraft={field.convertToDraft}
+          toolbar={field.toolbar || {}}
         />
       );
     }

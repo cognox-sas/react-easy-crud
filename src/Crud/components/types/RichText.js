@@ -32,6 +32,7 @@ const RichText = ({
   typeFormat,
   convertToRaw,
   convertToDraft,
+  toolbar,
 }) => {
   const { localize } = useContext(ReactEasyCrudContext);
   const [editorState, setContent] = useState(EditorState.createEmpty());
@@ -60,6 +61,7 @@ const RichText = ({
       localization={{
         locale: localize || 'en',
       }}
+      toolbar={toolbar}
     />
   );
 };
@@ -70,6 +72,7 @@ RichText.propTypes = {
   typeFormat: PropTypes.oneOf(['html', 'markdown']),
   convertToRaw: PropTypes.func,
   convertToDraft: PropTypes.func,
+  toolbar: PropTypes.object,
 };
 
 export default RichText;
