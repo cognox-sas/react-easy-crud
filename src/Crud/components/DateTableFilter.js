@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Input, Button, Row, Col } from 'antd';
+import { Button, Row, Col, DatePicker } from 'antd';
 
 const SearchTableFilter = ({
   selectedKeys,
@@ -11,11 +11,11 @@ const SearchTableFilter = ({
 }) => (
   <Row gutter={8} className="custom-search-filter">
     <Col span={24} style={{ paddingBottom: 8 }}>
-      <Input.Search
-        value={selectedKeys[0]}
-        onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-        onPressEnter={() => confirm()}
-        placeholder={translation ? translation('Search') : 'Search'}
+      <DatePicker.RangePicker
+        format="YYYY-MM-DD"
+        value={selectedKeys}
+        onChange={dates => setSelectedKeys(dates || [])}
+        onOk={() => confirm()}
       />
     </Col>
     <Col span={12} className="custom-align-right">

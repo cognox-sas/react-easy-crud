@@ -45,18 +45,25 @@ const resolveValueFor = (field, record, defaultValue = '') =>
 const resolveFilter = (field, translation) => {
   if (field.filter === true) {
     switch (field.filterType || field.type) {
-      case 'date':
+      case 'date': {
+        return {
+          filterDropdown: function FilterDrop(props) {
+            return <DateTableFilter {...props} translation={translation} />;
+          },
+          filterIcon: FilterIcon,
+          onFilter: (value, record) => {
+            console.log('Data date', value, record);
+            return true;
+          },
+        };
+      }
       case 'number':
       case 'select':
       case 'textarea':
       case 'string': {
         return {
           filterDropdown: function FilterDrop(props) {
-            return field.type === 'date' ? (
-              <DateTableFilter {...props} translation={translation} />
-            ) : (
-              <SearchTableFilter {...props} translation={translation} />
-            );
+            return <SearchTableFilter {...props} translation={translation} />;
           },
           filterIcon: FilterIcon,
           onFilter: (value, record) => {
