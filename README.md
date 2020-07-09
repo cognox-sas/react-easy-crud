@@ -12,15 +12,33 @@ npm install --save react-easy-crud
 
 ## Usage
 
+### GraphQL
+
 ```jsx
 import React from 'react'
 
 import { ProviderEasyCrud } from 'react-easy-crud'
-import client from './client'; // client of apollo-client or axios
-
+import client from './client';
 function App() {
   return (
     <ProviderEasyCrud type='graphql' client={client}>
+      <MyApp />
+    </ProviderEasyCrud>
+  )
+}
+```
+
+### Axios
+
+```jsx
+import React from 'react'
+
+import { ProviderEasyCrud } from 'react-easy-crud'
+import axiosIntance from './axiosIntance';
+
+function App() {
+  return (
+    <ProviderEasyCrud type='rest' client={axiosIntance}>
       <MyApp />
     </ProviderEasyCrud>
   )
