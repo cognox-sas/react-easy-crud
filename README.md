@@ -28,7 +28,7 @@ function App() {
 }
 ```
 
-### Axios
+### Rest
 
 ```jsx
 import React from 'react'
